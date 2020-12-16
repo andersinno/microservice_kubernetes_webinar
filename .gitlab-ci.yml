@@ -1,0 +1,36 @@
+
+# Include DevOps Pipeline
+include:
+  - project: anders/ci-configuration
+    ref: v3
+    file: /.gitlab-ci-base-template.yml
+
+  # Include sub-projects
+  - local: poster/.gitlab-ci.yml
+  - local: reporter/.gitlab-ci.yml
+  - local: scores/.gitlab-ci.yml
+
+variables:
+  STAGING_DISABLED: 1
+
+service-postgres:
+  extends: .review-service
+  variables:
+    POSTGRES_IMAGE: "docker.io/bitnami/postgresql:12.5.0"
+  script:
+    - devops deploy_service --track review --service postgresql --env-var DATABASE_URL --projects poster reporter scores
+  only:
+    - merge_requests
+
+service-rabbitmq:
+  extends: .review-service
+  script:
+    - devops deploy_service --track review --service rabbitmq --env-var BROKER_URL --projects poster reporter scores
+  only:
+    - merge_requests
+
+cleanup_review:
+  extends: .cleanup_review
+
+stop_review:
+  extends: .stop_review

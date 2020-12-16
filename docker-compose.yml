@@ -1,0 +1,73 @@
+version: "3.7"
+services:
+  # POSTER
+  poster:
+    build:
+      target: development
+      context: ./poster
+    volumes:
+      - ./poster:/app
+    environment:
+      - DEV_SERVER=1
+      - BROKER_URL=amqp://therabbit:therabbit@rabbitmq:5672/default
+      - BROKER_HOST=rabbitmq
+    ports:
+      - "127.0.0.1:8002:8000"
+    depends_on:
+      - rabbitmq
+
+  # REPORTER
+  reporter:
+    build:
+      target: development
+      context: ./reporter
+    volumes:
+      - ./reporter:/app
+    environment:
+      - DEV_SERVER=1
+      - SCORES_API=http://scores:8000
+      - BROKER_URL=amqp://therabbit:therabbit@rabbitmq:5672/default
+      - BROKER_HOST=rabbitmq
+    ports:
+      - "127.0.0.1:8001:8000"
+    depends_on:
+      - rabbitmq
+
+  # SCORES
+  scores:
+    build:
+      target: development
+      context: ./scores
+    volumes:
+      - ./scores:/app
+    environment:
+      - DEV_SERVER=1
+      - BROKER_URL=amqp://therabbit:therabbit@rabbitmq:5672/default
+      - BROKER_HOST=rabbitmq
+      - DATABASE_HOST=scores_db
+      - DATABASE_URL=postgres://scores:scores@scores_db/scores
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      - rabbitmq
+  scores_db:
+    image: postgres:12-alpine
+    environment:
+       - POSTGRES_USER=scores
+       - POSTGRES_PASSWORD=scores
+       - POSTGRES_DB=scores
+    volumes:
+      - db_data:/var/lib/postgresql/data:delegated
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3.8-alpine
+    ports:
+      - "5672:5672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=therabbit
+      - RABBITMQ_DEFAULT_PASS=therabbit
+      - RABBITMQ_DEFAULT_VHOST=default
+
+volumes:
+    db_data:

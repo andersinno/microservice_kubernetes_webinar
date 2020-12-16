@@ -1,0 +1,17 @@
+# === STAGES ===
+build-poster:
+  extends: .build
+  variables:
+    DOCKER_BUILD_CONTEXT: poster
+    DOCKER_BUILD_SOURCE: poster/Dockerfile
+    DOCKER_IMAGE_NAME: poster
+
+review-poster:
+  extends: .review-no-env
+  environment:
+    name: qa/r/${CI_COMMIT_REF_SLUG}
+  variables:
+    DOCKER_IMAGE_NAME: poster
+    DOCKER_BUILD_SOURCE: poster/Dockerfile
+    PROJECT_NAME: poster
+    K8S_INGRESS_DISABLED: 1

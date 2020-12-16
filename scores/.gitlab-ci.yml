@@ -1,0 +1,16 @@
+# === STAGES ===
+build-scores:
+  extends: .build
+  variables:
+    DOCKER_BUILD_CONTEXT: scores
+    DOCKER_BUILD_SOURCE: scores/Dockerfile
+    DOCKER_IMAGE_NAME: scores
+
+review-scores:
+  extends: .review
+  environment:
+    url: https://$CI_PROJECT_PATH_SLUG-$CI_ENVIRONMENT_SLUG-scores.$KUBE_INGRESS_BASE_DOMAIN
+  variables:
+    DOCKER_IMAGE_NAME: scores
+    DOCKER_BUILD_SOURCE: scores/Dockerfile
+    PROJECT_NAME: scores

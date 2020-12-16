@@ -1,0 +1,18 @@
+# === STAGES ===
+build-reporter:
+  extends: .build
+  variables:
+    DOCKER_BUILD_CONTEXT: reporter
+    DOCKER_BUILD_SOURCE: reporter/Dockerfile
+    DOCKER_IMAGE_NAME: reporter
+
+review-reporter:
+  extends: .review
+  environment:
+    url: https://$CI_PROJECT_PATH_SLUG-$CI_ENVIRONMENT_SLUG-reporter.$KUBE_INGRESS_BASE_DOMAIN
+  variables:
+    DOCKER_IMAGE_NAME: reporter
+    DOCKER_BUILD_SOURCE: reporter/Dockerfile
+    PROJECT_NAME: reporter
+    K8S_SECRET_SCORES_API: https://$CI_PROJECT_PATH_SLUG-$CI_ENVIRONMENT_SLUG-scores.$KUBE_INGRESS_BASE_DOMAIN
+    K8S_SECRET_REPORTER_URL: https://$CI_PROJECT_PATH_SLUG-$CI_ENVIRONMENT_SLUG-reporter.$KUBE_INGRESS_BASE_DOMAIN
